@@ -50,6 +50,10 @@ export class HttpClient {
     this.retry_second = retry_second;
   }
 
+  public getRetrySecond() {
+    return this.retry_second;
+  }
+
   async fetch(url: string, options: HttpFetchOptions) {
     if (options.params) {
       url = appendQuerystring(url, options.params);
