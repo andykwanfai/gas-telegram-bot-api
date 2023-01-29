@@ -287,7 +287,7 @@ export class TelegramBot {
       url: `${this.getApi(recipient.bot.token)}/${endpoint}`,
       options: options,
       retry: this.max_retry,
-      handleRetry: this.handleRetry,
+      handleRetry: () => this.handleRetry,
     });
 
     return Utils.parseJson(res.getContentText()) as TelegramResponse;
