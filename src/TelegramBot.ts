@@ -268,6 +268,7 @@ export class TelegramBot {
         retry_after = error.parameters?.retry_after!;
       } else if (status_code === 400) {
         const error_msg = error.description?.toLowerCase();
+        console.log(error_msg!);
         if (error_msg && (error_msg.includes("failed to get HTTP URL content".toLowerCase()) ||
           error_msg.includes("Wrong file identifier/HTTP URL specified".toLowerCase()) ||
           error_msg.includes("group send failed".toLowerCase()) ||
@@ -287,7 +288,7 @@ export class TelegramBot {
       url: `${this.getApi(recipient.bot.token)}/${endpoint}`,
       options: options,
       retry: this.max_retry,
-      handleRetry: () => this.handleRetry,
+      handleRetry: (res) => this.handleRetry(res),
     });
 
     return Utils.parseJson(res.getContentText()) as TelegramResponse;
