@@ -1,6 +1,13 @@
 import { Log } from './Logger';
 import { Utils } from './Utils';
 
+export class HttpPostSizeExceedLimitError extends Error {
+  super(message?: string) {
+    this.name = "HttpPostSizeExceedLimitError";
+    this.message = message ?? "Limit Exceeded: URLFetch POST Size.";
+  }
+}
+
 export interface HttpFetchOptions extends GoogleAppsScript.URL_Fetch.URLFetchRequestOptions {
   params?: object;
 }
@@ -95,6 +102,10 @@ export class HttpClient {
       const msg = `fetch error after retry: ${error_message}`;
       this.logger.info(msg);
       throw new Error(msg);
+    }
+
+    if (error_message?.includes("Limit Exceeded: URLFetch POST Size")) {
+      throw new HttpPostSizeExceedLimitError();
     }
 
     retry--;

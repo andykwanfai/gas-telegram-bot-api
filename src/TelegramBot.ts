@@ -91,6 +91,18 @@ export interface TelegramResponseResult {
   caption?: string;
   text?: string;
   date: number;
+  sender_chat?: {
+    id: number,
+    title: string,
+    username: string,
+    type: string
+  },
+  chat?: {
+    id: number,
+    title: string,
+    username: string,
+    type: string
+  },
 }
 
 export class TelegramSendMediaByUrlError extends Error {
@@ -268,7 +280,6 @@ export class TelegramBot {
         retry_after = error.parameters?.retry_after!;
       } else if (status_code === 400) {
         const error_msg = error.description?.toLowerCase();
-        console.log(error_msg!);
         if (error_msg && (error_msg.includes("failed to get HTTP URL content".toLowerCase()) ||
           error_msg.includes("Wrong file identifier/HTTP URL specified".toLowerCase()) ||
           error_msg.includes("group send failed".toLowerCase()) ||
