@@ -15,4 +15,8 @@ export class Utils {
   static now() {
     return new Date().getTime();
   }
+
+  static getJSTDateString(date: Date) {
+    return Utilities.formatDate(date, 'Asia/Tokyo', "yyyy-MM-dd HH:mm:ss z");
+  }
 }
