@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse, HttpFetchOptions, HttpBlob } from "./HttpClient";
-import { Log } from "./Logger";
+import { Logger } from "./Logger";
 import { Utils } from "./Utils";
 
 export const TG_MAX_CAPTION_LEN = 1024; // character limit for caption of photo, video or media group is 1024 characters;
@@ -138,12 +138,12 @@ export class TelegramBot {
   private retry_second;
   private logger;
   private httpClient;
-  constructor(i: { max_retry?: number, retry_second: number, logger: Log }) {
-    const { max_retry, retry_second, logger } = i;
+  constructor(i: { max_retry?: number, retry_second: number, logger: Logger, httpClient: HttpClient }) {
+    const { max_retry, retry_second, logger, httpClient } = i;
     this.max_retry = max_retry ?? 0;
     this.retry_second = retry_second;
     this.logger = logger;
-    this.httpClient = new HttpClient(logger, retry_second);
+    this.httpClient = httpClient;
   }
 
   async sendMessage(recipient: ITelegramRecipient, input: TelegramBotSendMessageInput) {

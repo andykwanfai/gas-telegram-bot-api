@@ -1,4 +1,4 @@
-import { Log } from './Logger';
+import { Logger } from './Logger';
 import { Utils } from './Utils';
 
 export class HttpPostSizeExceedLimitError extends Error {
@@ -22,10 +22,7 @@ export interface HttpBlob extends GoogleAppsScript.Base.Blob { }
 
 export interface IHttpResponse extends GoogleAppsScript.URL_Fetch.HTTPResponse { }
 export interface HttpResponse extends IHttpResponse { }
-export class HttpResponse {
-  constructor(res: IHttpResponse) {
-    Object.assign(this, res);
-  }
+export abstract class HttpResponse {
 
   getSetCookieHeader() {
     const headers: any = this.getAllHeaders();
@@ -40,25 +37,10 @@ export class HttpResponse {
   }
 }
 
-function querystring(obj: object) {
-  return Object.entries(obj).map(([key, value]) => {
-    return `${key}=${value}`;
-  }).join('&');
-}
-
-function appendQuerystring(url: string, obj: object) {
-  const question_mark_index = url.indexOf('?');
-  const qs = querystring(obj);
-  if (question_mark_index > 0) {
-    return `${url}&${qs}`;
-  }
-  return `${url}?${qs}`;
-}
-
-export class HttpClient {
-  private logger;
-  private retry_second;
-  constructor(logger: Log, retry_second: number) {
+export abstract class HttpClient {
+  public logger;
+  public retry_second;
+  constructor(logger: Logger, retry_second: number) {
     this.logger = logger;
     this.retry_second = retry_second;
   }
@@ -67,15 +49,7 @@ export class HttpClient {
     return this.retry_second;
   }
 
-  async fetch(url: string, options: HttpFetchOptions) {
-    if (options.params) {
-      url = appendQuerystring(url, options.params);
-    }
-    this.logger.debug(url);
-    this.logger.debug(options);
-    const res = UrlFetchApp.fetch(url, options);
-    return new HttpResponse(res);
-  }
+  abstract fetch(url: string, options: HttpFetchOptions): Promise<HttpResponse>
 
   async fetchWithRetry(i: {
     url: string;

@@ -1,5 +1,5 @@
 
-export class Log {
+export class Logger {
   constructor(i?: { debug: boolean }) {
     if (i?.debug) {
       this.debug = this.info;
@@ -10,6 +10,6 @@ export class Log {
   }
 
   info(data: any) {
-    Logger.log(data);
+    console.log(data);
   }
 }
