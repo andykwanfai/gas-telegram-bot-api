@@ -2,9 +2,15 @@ import { Log } from './Logger';
 import { Utils } from './Utils';
 
 export class HttpPostSizeExceedLimitError extends Error {
-  super(message?: string) {
+  constructor(message?: string) {
+    super(message ?? "Limit Exceeded: URLFetch POST Size.");
     this.name = "HttpPostSizeExceedLimitError";
-    this.message = message ?? "Limit Exceeded: URLFetch POST Size.";
+  }
+}
+export class HttpTooManyRequestsError extends Error {
+  constructor(message?: string) {
+    super(message ?? "Too Many Request.");
+    this.name = "HttpTooManyRequestsError";
   }
 }
 
@@ -90,7 +96,6 @@ export class HttpClient {
     }
 
     const status_code = res?.getResponseCode() ?? 9999;
-
     if (status_code < 400) {
       return res as HttpResponse;
     }
@@ -98,14 +103,17 @@ export class HttpClient {
     error_message = error_message ?? res?.getContentText();
     this.logger.info(`fetch error: ${error_message}`);
 
+    if (error_message?.includes("Limit Exceeded: URLFetch POST Size")) {
+      throw new HttpPostSizeExceedLimitError();
+    }
+    if (status_code === 429) {
+      throw new HttpTooManyRequestsError();
+    }
+
     if (retry <= 0) {
       const msg = `fetch error after retry: ${error_message}`;
       this.logger.info(msg);
       throw new Error(msg);
-    }
-
-    if (error_message?.includes("Limit Exceeded: URLFetch POST Size")) {
-      throw new HttpPostSizeExceedLimitError();
     }
 
     retry--;
