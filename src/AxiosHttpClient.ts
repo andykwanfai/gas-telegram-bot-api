@@ -108,7 +108,9 @@ export class AxiosHttpClient extends HttpClient {
     if (payload) {
       const form_data = new FormData();
       Object.entries(payload).forEach(([key, value]) => {
-        form_data.append(key, value);
+        if (value) {
+          form_data.append(key, value);
+        }
       });
       axios_config.data = form_data;
     }
@@ -121,6 +123,9 @@ export class AxiosHttpClient extends HttpClient {
     }
     if (options.followRedirects) {
       axios_config.maxRedirects = 0;
+    }
+    if (options.muteHttpExceptions) {
+      axios_config.validateStatus = (status) => status < 9999;
     }
     return axios_config;
   }

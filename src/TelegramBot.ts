@@ -192,6 +192,7 @@ export class TelegramBot {
     input = {
       parse_mode: 'HTML',
       chat_id: recipient.chat_id,
+      supports_streaming: "true" as any,
       ...input
     };
     const options: HttpFetchOptions = {
@@ -220,7 +221,15 @@ export class TelegramBot {
     // set default parse_mode
     input.media[0] = { parse_mode: 'HTML', ...input.media[0]! };
     // tg api need to stringify media
-    input.media = JSON.stringify(input.media) as any;
+    const media: TelegramBotInputMedia[] = input.media.map((e) => {
+      return {
+        type: e.type,
+        media: e.media,
+        caption: e.caption,
+        parse_mode: e.parse_mode,
+      }
+    });
+    input.media = JSON.stringify(media) as any;
     input = {
       chat_id: recipient.chat_id, //set default chat_id
       ...input

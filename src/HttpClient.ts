@@ -98,7 +98,7 @@ export abstract class HttpClient {
       this.defaultHandleRetry();
     }
 
-    return await this.fetchWithRetry({ url, options, retry });
+    return await this.fetchWithRetry({ url, options, retry, handleRetry });
   }
 
   private defaultHandleRetry() {
