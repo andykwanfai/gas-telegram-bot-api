@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse, HttpFetchOptions, HttpBlob } from "./HttpClient";
+import { HttpClient, HttpResponse, HttpFetchOptions, HttpBlob, HttpTooManyRequestsError } from "./HttpClient";
 import { Logger } from "./Logger";
 import { Utils } from "./Utils";
 
@@ -303,14 +303,23 @@ export class TelegramBot {
     Utils.sleep(retry_after);
   }
 
-  private async fetch(recipient: ITelegramRecipient, endpoint: string, options: HttpFetchOptions,) {
-    const res = await this.httpClient.fetchWithRetry({
-      url: `${this.getApi(recipient.bot.token)}/${endpoint}`,
-      options: options,
-      retry: this.max_retry,
-      handleRetry: (res) => this.handleRetry(res),
-    });
-
-    return Utils.parseJson(res.getContentText()) as TelegramResponse;
+  private async fetch(recipient: ITelegramRecipient, endpoint: string, options: HttpFetchOptions, retry = this.max_retry): Promise<TelegramResponse> {
+    try {
+      const res = await this.httpClient.fetchWithRetry({
+        url: `${this.getApi(recipient.bot.token)}/${endpoint}`,
+        options: options,
+        retry: retry,
+        handleRetry: (res) => this.handleRetry(res),
+      });
+      return Utils.parseJson(res.getContentText()) as TelegramResponse;
+    } catch (error) {
+      if (error instanceof HttpTooManyRequestsError) {
+        const res = Utils.parseJson(error.response.getContentText()) as TelegramResponse;
+        const retry_after = res.parameters?.retry_after!;
+        Utils.sleep(retry_after);
+        return await this.fetch(recipient, endpoint, options, retry--);
+      }
+      throw error;
+    }
   }
 }

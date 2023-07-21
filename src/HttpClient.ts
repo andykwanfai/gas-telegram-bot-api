@@ -8,9 +8,11 @@ export class HttpPostSizeExceedLimitError extends Error {
   }
 }
 export class HttpTooManyRequestsError extends Error {
-  constructor(message?: string) {
+  public response;
+  constructor(response: HttpResponse, message?: string) {
     super(message ?? "Too Many Request.");
     this.name = "HttpTooManyRequestsError";
+    this.response = response;
   }
 }
 
@@ -60,7 +62,7 @@ export abstract class HttpClient {
     const { url, options, handleRetry: handleRetry } = i;
     let { retry } = i;
 
-    let res;
+    let res: HttpResponse | undefined;
     let error_message;
     try {
       res = await this.fetch(url, { ...options, muteHttpExceptions: true });
@@ -81,7 +83,7 @@ export abstract class HttpClient {
       throw new HttpPostSizeExceedLimitError();
     }
     if (status_code === 429) {
-      throw new HttpTooManyRequestsError();
+      throw new HttpTooManyRequestsError(res!, error_message);
     }
 
     if (retry <= 0) {
