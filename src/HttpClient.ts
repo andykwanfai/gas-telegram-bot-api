@@ -34,7 +34,7 @@ export abstract class HttpResponse {
 
   getContentLength() {
     const headers: any = this.getHeaders();
-    const content_length = headers['Content-Length'] ?? headers['content-legnth'];
+    const content_length = headers['Content-Length'] ?? headers['content-length'];
     return content_length as number | undefined;
   }
 }

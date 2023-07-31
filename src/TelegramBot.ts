@@ -111,6 +111,12 @@ export class TelegramSendMediaByUrlError extends Error {
     this.message = message ?? "send media by url error";
   }
 }
+export class TelegramFileTooLargeError extends Error {
+  super(message?: string) {
+    this.name = "TelegramFileTooLargeError";
+    this.message = message ?? "Request Entity Too Large";
+  }
+}
 
 export interface ITelegramBot {
   name: string;
@@ -295,6 +301,9 @@ export class TelegramBot {
           error_msg.includes("Wrong type of the web page content".toLowerCase()))
         ) {
           throw new TelegramSendMediaByUrlError();
+        }
+        if (error_msg && (error_msg.includes("Request Entity Too Large".toLowerCase()))) {
+          throw new TelegramFileTooLargeError();
         }
       }
     }
