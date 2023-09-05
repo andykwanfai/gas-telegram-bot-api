@@ -7,6 +7,7 @@ export const TG_MAX_MESSAGE_LEN = 4096; // character limit for text message is 4
 
 interface TelegramBotSendInput {
   chat_id?: number | string;
+  message_thread_id?: number | string;
 
   parse_mode?: string;
 
