@@ -1,110 +1,10 @@
-import { HttpClient, HttpResponse, HttpFetchOptions, HttpBlob, HttpTooManyRequestsError } from "./HttpClient";
+import { HttpClient, HttpResponse, HttpFetchOptions, HttpTooManyRequestsError } from "./HttpClient";
+import { TelegramBoPinMessageInput, TelegramBotInputMedia, TelegramBotSendAnimationInput, TelegramBotSendAudioInput, TelegramBotSendMediaGroupInput, TelegramBotSendMessageInput, TelegramBotSendPhotoInput, TelegramBotSendVideoInput, TelegramResponse, TelegramResponseResult } from "./interface/ITelegramBot";
 import { Logger } from "./Logger";
 import { Utils } from "./Utils";
 
 export const TG_MAX_CAPTION_LEN = 1024; // character limit for caption of photo, video or media group is 1024 characters;
 export const TG_MAX_MESSAGE_LEN = 4096; // character limit for text message is 4096 characters;
-
-interface TelegramBotSendInput {
-  chat_id?: number | string;
-  message_thread_id?: number | string;
-
-  parse_mode?: string;
-
-  disable_notification?: boolean;
-  protect_content?: boolean;
-  reply_to_message_id?: number;
-  allow_sending_without_reply?: boolean;
-  reply_markup?: any;
-}
-
-export interface TelegramBotSendFileInput extends TelegramBotSendInput {
-  caption?: string;
-  caption_entities?: any[];
-}
-
-interface TelegramBotSendMessageInput extends TelegramBotSendInput {
-  text: string;
-  entities?: any[];
-  disable_web_page_preview?: boolean;
-}
-
-interface TelegramBotSendPhotoInput extends TelegramBotSendFileInput {
-  photo: string | HttpBlob;
-}
-
-interface TelegramBotSendAudioInput extends TelegramBotSendFileInput {
-  audio: string | HttpBlob;
-  duration?: number;
-  performer?: string;
-  title?: string;
-  thumb?: string;
-}
-
-interface TelegramBotSendVideoInput extends TelegramBotSendFileInput {
-  video: string | HttpBlob;
-  duration?: number;
-  width?: number;
-  height?: number;
-  thumb?: HttpBlob;
-  supports_streaming?: boolean;
-}
-
-interface TelegramBotSendAnimationInput extends TelegramBotSendFileInput {
-  animation: string | HttpBlob;
-  duration?: number;
-  width?: number;
-  height?: number;
-  thumb?: string | HttpBlob;
-}
-
-export interface TelegramBotInputMedia {
-  type: 'audio' | 'photo' | 'video';
-  media: string | HttpBlob;
-  caption?: string;
-  parse_mode?: string;
-}
-
-export interface TelegramBotSendMediaGroupInput extends TelegramBotSendInput {
-  media: TelegramBotInputMedia[];
-  duration?: number;
-  width?: number;
-  height?: number;
-  thumb?: string;
-  supports_streaming?: boolean;
-  [index: number]: HttpBlob;
-}
-
-export interface TelegramBoPinMessageInput {
-  chat_id?: string;
-  message_id: number;
-  disable_notification?: boolean;
-}
-
-export interface TelegramResponseResult {
-  message_id: number;
-  photo?: { file_id: string }[];
-  video?: { file_id: string };
-  document?: { file_id: string };
-  audio?: { file_id: string };
-  animation?: { file_id: string };
-  media_group_id?: string;
-  caption?: string;
-  text?: string;
-  date: number;
-  sender_chat?: {
-    id: number,
-    title: string,
-    username: string,
-    type: string
-  },
-  chat?: {
-    id: number,
-    title: string,
-    username: string,
-    type: string
-  },
-}
 
 export class TelegramSendMediaByUrlError extends Error {
   super(message?: string) {
@@ -130,14 +30,6 @@ export interface ITelegramRecipient {
   chat_id: string;
   pin_all_message?: boolean;
   // is_default?: boolean;
-}
-
-export interface TelegramResponse {
-  ok: boolean;
-  description?: string;
-  result?: TelegramResponseResult | TelegramResponseResult[];
-  error_code?: number;
-  parameters?: { migrate_to_chat_id?: number, retry_after?: number };
 }
 
 export class TelegramBot {
