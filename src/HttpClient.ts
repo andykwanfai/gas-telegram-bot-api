@@ -22,6 +22,13 @@ export interface HttpFetchOptions extends GoogleAppsScript.URL_Fetch.URLFetchReq
 
 export interface HttpBlob extends GoogleAppsScript.Base.Blob { }
 
+export interface RequestProxyBody {
+  url: string,
+  method?: string,
+  headers?: any,
+  body?: any,
+}
+
 export interface IHttpResponse extends GoogleAppsScript.URL_Fetch.HTTPResponse { }
 export interface HttpResponse extends IHttpResponse { }
 export abstract class HttpResponse {
@@ -101,6 +108,17 @@ export abstract class HttpClient {
     }
 
     return await this.fetchWithRetry({ url, options, retry, handleRetry });
+  }
+
+  async requestProxy(proxy_url: string, body: RequestProxyBody, retry = 0) {
+    return this.fetchWithRetry({
+      url: proxy_url,
+      options: {
+        method: 'post',
+        payload: JSON.stringify(body),
+      },
+      retry,
+    })
   }
 
   private defaultHandleRetry() {

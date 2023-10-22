@@ -1,5 +1,4 @@
-import { HttpBlob, HttpClient, HttpFetchOptions, HttpResponse, IHttpResponse } from './HttpClient';
-import { Utils } from './Utils';
+import { HttpBlob, HttpClient, HttpFetchOptions, HttpResponse } from './HttpClient';
 import axios, { AxiosHeaders, AxiosRequestConfig, AxiosResponse, ResponseType } from 'axios';
 import FormData from 'form-data';
 
@@ -23,7 +22,7 @@ export class AxiosHttpResponse extends HttpResponse implements HttpBlob {
   }
 
   getBlob(): HttpBlob {
-    return this.response.data;
+    return this.response.data.slice(0);
   }
 
   getContent(): number[] {
@@ -109,7 +108,11 @@ export class AxiosHttpClient extends HttpClient {
       const form_data = new FormData();
       Object.entries(payload).forEach(([key, value]) => {
         if (value) {
-          form_data.append(key, value);
+          let options;
+          if (value instanceof Buffer) {
+            options = { filename: "video.mp4" };
+          }
+          form_data.append(key, value, options);
         }
       });
       axios_config.data = form_data;
