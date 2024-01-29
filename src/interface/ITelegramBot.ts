@@ -56,6 +56,11 @@ export interface TelegramBotSendAnimationInput extends TelegramBotSendFileInput 
 export interface TelegramBotInputMedia {
   type: 'audio' | 'photo' | 'video';
   media: string | HttpBlob;
+  duration?: number;
+  width?: number;
+  height?: number;
+  thumb?: string;
+  supports_streaming?: boolean;
   caption?: string;
   parse_mode?: string;
 }

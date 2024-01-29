@@ -47,7 +47,6 @@ export class TelegramBot {
 
   async sendMessage(recipient: ITelegramRecipient, input: TelegramBotSendMessageInput) {
     input = {
-      parse_mode: 'HTML',
       chat_id: recipient.chat_id,
       ...input
     };
@@ -61,7 +60,6 @@ export class TelegramBot {
 
   async sendPhoto(recipient: ITelegramRecipient, input: TelegramBotSendPhotoInput) {
     input = {
-      parse_mode: 'HTML',
       chat_id: recipient.chat_id,
       ...input
     };
@@ -75,7 +73,6 @@ export class TelegramBot {
 
   async sendAudio(recipient: ITelegramRecipient, input: TelegramBotSendAudioInput) {
     input = {
-      parse_mode: 'HTML',
       chat_id: recipient.chat_id,
       ...input
     };
@@ -89,7 +86,6 @@ export class TelegramBot {
 
   async sendVideo(recipient: ITelegramRecipient, input: TelegramBotSendVideoInput) {
     input = {
-      parse_mode: 'HTML',
       chat_id: recipient.chat_id,
       supports_streaming: "true" as any,
       ...input
@@ -104,7 +100,6 @@ export class TelegramBot {
 
   async sendAnimation(recipient: ITelegramRecipient, input: TelegramBotSendAnimationInput) {
     input = {
-      parse_mode: 'HTML',
       chat_id: recipient.chat_id,
       ...input
     };
@@ -117,15 +112,19 @@ export class TelegramBot {
   }
 
   async sendMediaGroup(recipient: ITelegramRecipient, input: TelegramBotSendMediaGroupInput) {
-    // set default parse_mode
-    input.media[0] = { parse_mode: 'HTML', ...input.media[0]! };
     // tg api need to stringify media
     const media: TelegramBotInputMedia[] = input.media.map((e) => {
       return {
+        height: e.height,
+        width: e.width,
+        // sendMediaGroup will throw "Bad Request: can't parse InputMedia: Field \"duration\" must be a valid Number" for float number. This case does not happen in sendVideo api
+        duration: e.duration ? Math.round(e.duration) : undefined,
+        thumb: e.thumb,
         type: e.type,
         media: e.media,
         caption: e.caption,
         parse_mode: e.parse_mode,
+        supports_streaming: e.supports_streaming,
       }
     });
     input.media = JSON.stringify(media) as any;
@@ -188,14 +187,23 @@ export class TelegramBot {
         retry_after = error.parameters?.retry_after!;
       } else if (status_code === 400) {
         const error_msg = error.description?.toLowerCase();
-        if (error_msg && (error_msg.includes("failed to get HTTP URL content".toLowerCase()) ||
-          error_msg.includes("Wrong file identifier/HTTP URL specified".toLowerCase()) ||
-          error_msg.includes("group send failed".toLowerCase()) ||
-          error_msg.includes("Wrong type of the web page content".toLowerCase()))
+        if (error_msg &&
+          (
+            error_msg.includes("failed to get HTTP URL content".toLowerCase()) ||
+            error_msg.includes("Wrong file identifier/HTTP URL specified".toLowerCase()) ||
+            error_msg.includes("group send failed".toLowerCase()) ||
+            error_msg.includes("Wrong type of the web page content".toLowerCase()) ||
+            error_msg.includes("WEBPAGE_CURL_FAILED".toLowerCase())
+          )
         ) {
           throw new TelegramSendMediaByUrlError();
         }
-        if (error_msg && (error_msg.includes("Request Entity Too Large".toLowerCase()))) {
+        if (error_msg &&
+          (
+            error_msg.includes("Request Entity Too Large".toLowerCase()) ||
+            error_msg.includes("too big for a photo".toLowerCase())
+          )
+        ) {
           throw new TelegramFileTooLargeError();
         }
       }
