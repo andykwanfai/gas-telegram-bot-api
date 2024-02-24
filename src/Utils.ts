@@ -9,7 +9,7 @@ export class Utils {
   }
 
   static sleep(sec: number) {
-    if (Utilities) {
+    if (typeof Utilities !== 'undefined') {
       Utilities.sleep(sec * 1000);
     } else {
       const start = new Date().getTime();
@@ -22,7 +22,7 @@ export class Utils {
   }
 
   static getJSTDateString(date: Date) {
-    if (Utilities) {
+    if (typeof Utilities !== 'undefined') {
       return Utilities.formatDate(date, 'Asia/Tokyo', "yyyy-MM-dd HH:mm:ss z");
     }
     const formattedDate = moment(date).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss z')
