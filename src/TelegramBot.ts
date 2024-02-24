@@ -193,7 +193,8 @@ export class TelegramBot {
             error_msg.includes("Wrong file identifier/HTTP URL specified".toLowerCase()) ||
             error_msg.includes("group send failed".toLowerCase()) ||
             error_msg.includes("Wrong type of the web page content".toLowerCase()) ||
-            error_msg.includes("WEBPAGE_CURL_FAILED".toLowerCase())
+            error_msg.includes("WEBPAGE_CURL_FAILED".toLowerCase()) ||
+            error_msg.includes("WEBPAGE_MEDIA_EMPTY".toLowerCase())
           )
         ) {
           throw new TelegramSendMediaByUrlError();
