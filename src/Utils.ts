@@ -1,4 +1,3 @@
-import moment from "moment-timezone";
 export class Utils {
   static parseJson(s: string): null | object {
     try {
@@ -22,10 +21,6 @@ export class Utils {
   }
 
   static getJSTDateString(date: Date) {
-    if (typeof Utilities !== 'undefined') {
-      return Utilities.formatDate(date, 'Asia/Tokyo', "yyyy-MM-dd HH:mm:ss z");
-    }
-    const formattedDate = moment(date).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss z')
-    return formattedDate;
+    return date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }).replace(/\//g, '-') + ' JST';
   }
 }
