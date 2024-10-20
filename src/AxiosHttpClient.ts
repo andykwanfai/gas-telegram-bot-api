@@ -18,7 +18,7 @@ export class AxiosHttpResponse extends HttpResponse implements HttpBlob {
   }
 
   getAs(contentType: string): any {
-    throw new Error("this function is not implemented");
+    return this.response.data;
   }
 
   getBlob(): HttpBlob {
@@ -105,17 +105,21 @@ export class AxiosHttpClient extends HttpClient {
     }
     const payload = options.payload;
     if (payload) {
-      const form_data = new FormData();
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value) {
-          let options;
-          if (value instanceof Buffer) {
-            options = { filename: "video.mp4" };
+      if (Buffer.isBuffer(payload)) {
+        axios_config.data = payload;
+      } else {
+        const form_data = new FormData();
+        Object.entries(payload).forEach(([key, value]) => {
+          if (value) {
+            let options;
+            if (value instanceof Buffer) {
+              options = { filename: "video.mp4" };
+            }
+            form_data.append(key, value, options);
           }
-          form_data.append(key, value, options);
-        }
-      });
-      axios_config.data = form_data;
+        });
+        axios_config.data = form_data;
+      }
     }
     if (options.headers || options.contentType) {
       const headers = new AxiosHeaders(options.headers);
