@@ -86,7 +86,7 @@ export abstract class HttpClient {
     error_message = error_message ?? res?.getContentText();
     this.logger.info(`fetch error: ${error_message}`);
 
-    if (error_message?.toLowerCase().includes("Limit Exceeded: URLFetch POST Size".toLowerCase())) {
+    if (error_message?.toLowerCase().includes("Limit Exceeded: URLFetch POST Size".toLowerCase()) || status_code === 413) {
       throw new HttpPostSizeExceedLimitError();
     }
     if (status_code === 429) {
