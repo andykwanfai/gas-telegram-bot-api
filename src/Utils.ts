@@ -32,4 +32,21 @@ export class Utils {
       hour12: false
     }).replace(/\//g, '-') + ' JST';
   }
+
+  static decodeEntities(encodedString: string) {
+    var translate_re = /&(nbsp|amp|quot|lt|gt);/g;
+    var translate: any = {
+      "nbsp": " ",
+      "amp": "&",
+      "quot": "\"",
+      "lt": "<",
+      "gt": ">"
+    };
+    return encodedString.replace(translate_re, function (match, entity) {
+      return translate[entity];
+    }).replace(/&#(\d+);/gi, function (match, numStr) {
+      var num = parseInt(numStr, 10);
+      return String.fromCharCode(num);
+    });
+  }
 }
