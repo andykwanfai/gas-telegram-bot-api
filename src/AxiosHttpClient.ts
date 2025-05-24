@@ -105,7 +105,7 @@ export class AxiosHttpClient extends HttpClient {
     }
     const payload = options.payload;
     if (payload) {
-      if (Buffer.isBuffer(payload)) {
+      if (Buffer.isBuffer(payload) || typeof payload === 'string') {
         axios_config.data = payload;
       } else {
         const form_data = new FormData();
