@@ -3,7 +3,8 @@ import { HttpClient, HttpFetchOptions, HttpResponse, IHttpResponse } from './Htt
 export class GasHttpResponse extends HttpResponse {
   constructor(i: IHttpResponse) {
     super();
-    Object.assign(this, i);
+    Object.defineProperties(this, Object.getOwnPropertyDescriptors(i));
+    Object.setPrototypeOf(this, Object.getPrototypeOf(i));
   }
 }
 
