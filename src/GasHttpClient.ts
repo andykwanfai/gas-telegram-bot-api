@@ -1,10 +1,33 @@
 import { HttpClient, HttpFetchOptions, HttpResponse, IHttpResponse } from './HttpClient';
 
 export class GasHttpResponse extends HttpResponse {
+  private _source: IHttpResponse;
   constructor(i: IHttpResponse) {
     super();
-    Object.defineProperties(this, Object.getOwnPropertyDescriptors(i));
-    Object.setPrototypeOf(this, Object.getPrototypeOf(i));
+    this._source = i;
+  }
+
+  // gas response function
+  getAllHeaders() {
+    return this._source.getAllHeaders();
+  }
+  getAs(contentType: string) {
+    return this._source.getAs(contentType);
+  }
+  getBlob() {
+    return this._source.getBlob();
+  }
+  getContent() {
+    return this._source.getContent();
+  }
+  getContentText() {
+    return this._source.getContentText();
+  }
+  getHeaders() {
+    return this._source.getHeaders();
+  }
+  getResponseCode() {
+    return this._source.getResponseCode();
   }
 }
 
