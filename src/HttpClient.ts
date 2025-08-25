@@ -110,7 +110,7 @@ export abstract class HttpClient {
     return await this.fetchWithRetry({ url, options, retry, handleRetry });
   }
 
-  async requestProxy(proxy_url: string, body: RequestProxyBody, retry = 0) {
+  async requestProxy(proxy_url: string, body: RequestProxyBody, retry = 0, handleRetry?: (res?: HttpResponse) => void) {
     return this.fetchWithRetry({
       url: proxy_url,
       options: {
@@ -118,6 +118,7 @@ export abstract class HttpClient {
         payload: JSON.stringify(body),
       },
       retry,
+      handleRetry,
     })
   }
 

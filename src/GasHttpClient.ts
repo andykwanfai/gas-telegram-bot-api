@@ -14,7 +14,7 @@ function querystring(obj: object) {
   }).join('&');
 }
 
-function appendQuerystring(url: string, obj: object) {
+export function appendQuerystring(url: string, obj: object) {
   const question_mark_index = url.indexOf('?');
   const qs = querystring(obj);
   if (question_mark_index > 0) {
