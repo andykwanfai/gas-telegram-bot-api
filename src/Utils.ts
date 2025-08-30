@@ -16,8 +16,8 @@ export class Utils {
     }
   }
 
-  static sleepRandom(maxSec: number) {
-    const randomSec = Math.random() * maxSec;
+  static sleepRandom(minSec: number, maxSec: number) {
+    const randomSec = Utils.randomNumber(minSec, maxSec);
     Utils.sleep(randomSec);
   }
 
@@ -62,5 +62,14 @@ export class Utils {
       [result[i] as any, result[j] as any] = [result[j], result[i]];
     }
     return result;
+  }
+
+  /**
+   * @description return integer between min and max inclusively
+   * @param min 
+   * @param max 
+   */
+  static randomNumber(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
