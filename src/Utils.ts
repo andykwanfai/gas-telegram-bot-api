@@ -16,6 +16,11 @@ export class Utils {
     }
   }
 
+  static sleepRandom(maxSec: number) {
+    const randomSec = Math.random() * maxSec;
+    Utils.sleep(randomSec);
+  }
+
   static now() {
     return new Date().getTime();
   }
@@ -48,5 +53,14 @@ export class Utils {
       var num = parseInt(numStr, 10);
       return String.fromCharCode(num);
     });
+  }
+
+  static shuffleArray<T>(array: T[]): T[] {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i] as any, result[j] as any] = [result[j], result[i]];
+    }
+    return result;
   }
 }
