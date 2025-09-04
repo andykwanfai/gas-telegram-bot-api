@@ -1,5 +1,10 @@
 import { HttpBlob } from "../HttpClient";
 
+interface TelegramReplyParameters {
+  message_id: number;
+  chat_id?: number | string;
+}
+
 interface TelegramBotSendInput {
   chat_id?: number | string;
   message_thread_id?: number | string;
@@ -11,6 +16,7 @@ interface TelegramBotSendInput {
   reply_to_message_id?: number;
   allow_sending_without_reply?: boolean;
   reply_markup?: any;
+  reply_parameters?: TelegramReplyParameters;
 }
 
 export interface TelegramBotSendFileInput extends TelegramBotSendInput {
