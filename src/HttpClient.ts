@@ -64,7 +64,7 @@ export abstract class HttpClient {
     url: string;
     options: HttpFetchOptions;
     retry: number;
-    handleRetry?: (res?: HttpResponse) => void;
+    handleRetry?: (res: HttpResponse) => void;
   }): Promise<HttpResponse> {
     const { url, options, handleRetry: handleRetry } = i;
     let { retry } = i;
@@ -101,7 +101,7 @@ export abstract class HttpClient {
 
     retry--;
 
-    if (handleRetry) {
+    if (handleRetry && res) {
       handleRetry(res);
     } else {
       this.defaultHandleRetry();
@@ -110,7 +110,7 @@ export abstract class HttpClient {
     return await this.fetchWithRetry({ url, options, retry, handleRetry });
   }
 
-  async requestProxy(proxy_url: string, body: RequestProxyBody, retry = 0, handleRetry?: (res?: HttpResponse) => void) {
+  async requestProxy(proxy_url: string, body: RequestProxyBody, retry = 0, handleRetry?: (res: HttpResponse) => void) {
     return this.fetchWithRetry({
       url: proxy_url,
       options: {
