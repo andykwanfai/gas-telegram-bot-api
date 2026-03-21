@@ -2,8 +2,6 @@
   "compilerOptions": {
     "types": [
       "google-apps-script",
-      "node",
-      "@types/jest",
     ],
     "module": "ES6",
     "moduleResolution": "node",

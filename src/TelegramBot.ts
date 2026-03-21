@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse, HttpFetchOptions, HttpTooManyRequestsError } from "./HttpClient";
-import { TelegramBoPinMessageInput, TelegramBotInputMedia, TelegramBotSendAnimationInput, TelegramBotSendAudioInput, TelegramBotSendMediaGroupInput, TelegramBotSendMessageInput, TelegramBotSendPhotoInput, TelegramBotSendVideoInput, TelegramResponse, TelegramResponseResult } from "./interface/ITelegramBot";
+import { TelegramBoPinMessageInput, TelegramBotInputMedia, TelegramBotSendAnimationInput, TelegramBotSendAudioInput, TelegramBotSendMediaGroupInput, TelegramBotSendMessageInput, TelegramBotSendPhotoInput, TelegramBotSendVideoInput, TelegramResponse, TelegramResponseResult, Update, TelegramGetUpdatesInput, TelegramUpdateResponse } from "./interface/ITelegramBot";
 import { Logger } from "./Logger";
 import { Utils } from "./Utils";
 
@@ -54,7 +54,7 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `sendMessage`, options);
+    const res = await this.fetch(recipient.bot, `sendMessage`, options);
     return res;
   }
 
@@ -67,7 +67,7 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `sendPhoto`, options);
+    const res = await this.fetch(recipient.bot, `sendPhoto`, options);
     return res;
   }
 
@@ -80,7 +80,7 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `sendAudio`, options);
+    const res = await this.fetch(recipient.bot, `sendAudio`, options);
     return res;
   }
 
@@ -94,7 +94,7 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `sendVideo`, options);
+    const res = await this.fetch(recipient.bot, `sendVideo`, options);
     return res;
   }
 
@@ -107,7 +107,7 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `sendAnimation`, options);
+    const res = await this.fetch(recipient.bot, `sendAnimation`, options);
     return res;
   }
 
@@ -136,7 +136,7 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `sendMediaGroup`, options);
+    const res = await this.fetch(recipient.bot, `sendMediaGroup`, options);
     return res;
   }
 
@@ -149,8 +149,43 @@ export class TelegramBot {
       method: "post",
       payload: input,
     }
-    const res = await this.fetch(recipient, `pinChatMessage`, options);
+    const res = await this.fetch(recipient.bot, `pinChatMessage`, options);
     return res;
+  }
+
+  async getUpdates(bot: ITelegramBot, input?: TelegramGetUpdatesInput) {
+    const options: HttpFetchOptions = {
+      method: "get",
+      params: input,
+    }
+    const res = await this.fetch(bot, `getUpdates`, options) as TelegramUpdateResponse;
+    return res.result || [];
+  }
+
+  async getAllUpdates(bot: ITelegramBot, timeout?: number, allowed_updates?: string[]): Promise<Update[]> {
+    const allUpdates: Update[] = [];
+    const limit = 100;
+    let offset: number | undefined;
+
+    while (true) {
+      const updates = await this.getUpdates(bot, {
+        offset: offset,
+        timeout: timeout,
+        limit,
+        allowed_updates: allowed_updates,
+      });
+
+      allUpdates.push(...updates);
+
+      if (updates.length < limit) {
+        break;
+      }
+
+      const maxUpdateId = updates[updates.length - 1]!.update_id;
+      offset = maxUpdateId + 1;
+    }
+
+    return allUpdates;
   }
 
   public static getFileId(result: TelegramResponseResult) {
@@ -214,10 +249,10 @@ export class TelegramBot {
     Utils.sleep(retry_after);
   }
 
-  private async fetch(recipient: ITelegramRecipient, endpoint: string, options: HttpFetchOptions, retry = this.max_retry): Promise<TelegramResponse> {
+  private async fetch(bot: ITelegramBot, endpoint: string, options: HttpFetchOptions, retry = this.max_retry): Promise<TelegramResponse | TelegramUpdateResponse> {
     try {
       const res = await this.httpClient.fetchWithRetry({
-        url: `${this.getApi(recipient.bot.token)}/${endpoint}`,
+        url: `${this.getApi(bot.token)}/${endpoint}`,
         options: options,
         retry: retry,
         handleRetry: (res) => this.handleRetry(res),
@@ -228,7 +263,7 @@ export class TelegramBot {
         const res = Utils.parseJson(error.response.getContentText()) as TelegramResponse;
         const retry_after = res.parameters?.retry_after!;
         Utils.sleep(retry_after);
-        return await this.fetch(recipient, endpoint, options, retry--);
+        return await this.fetch(bot, endpoint, options, retry--);
       }
       throw error;
     }

@@ -218,3 +218,42 @@ export interface TelegramResponse {
   error_code?: number;
   parameters?: { migrate_to_chat_id?: number, retry_after?: number };
 }
+
+// Essential types for getUpdates
+export interface TelegramBotCallbackQuery {
+  id: string;
+  from: TelegramBotUser;
+  chat_instance: string;
+  message?: TelegramBotMessage;
+  inline_message_id?: string;
+  data?: string;
+  game_short_name?: string;
+}
+
+export interface TelegramBotInlineQuery {
+  id: string;
+  from: TelegramBotUser;
+  query: string;
+  offset: string;
+  chat_type?: string;
+  location?: TelegramBotLocation;
+}
+
+export interface Update {
+  update_id: number;
+  message?: TelegramBotMessage;
+  callback_query?: TelegramBotCallbackQuery;
+  inline_query?: TelegramBotInlineQuery;
+}
+
+export interface TelegramGetUpdatesInput {
+  offset?: number;
+  limit?: number;
+  timeout?: number;
+  allowed_updates?: string[];
+}
+
+export interface TelegramUpdateResponse {
+  ok: boolean;
+  result: Update[];
+}
