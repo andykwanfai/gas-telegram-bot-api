@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse, HttpFetchOptions, HttpTooManyRequestsError } from "./HttpClient";
-import { TelegramBoPinMessageInput, TelegramBotInputMedia, TelegramBotSendAnimationInput, TelegramBotSendAudioInput, TelegramBotSendMediaGroupInput, TelegramBotSendMessageInput, TelegramBotSendPhotoInput, TelegramBotSendVideoInput, TelegramResponse, TelegramResponseResult, Update, TelegramGetUpdatesInput, TelegramUpdateResponse } from "./interface/ITelegramBot";
+import { TelegramBoPinMessageInput, TelegramBotInputMedia, TelegramBotSendAnimationInput, TelegramBotSendAudioInput, TelegramBotSendMediaGroupInput, TelegramBotSendMessageInput, TelegramBotSendPhotoInput, TelegramBotSendVideoInput, TelegramResponse, TelegramResponseResult, Update, TelegramGetUpdatesInput, TelegramFile, } from "./interface/ITelegramBot";
 import { Logger } from "./Logger";
 import { Utils } from "./Utils";
 
@@ -158,31 +158,43 @@ export class TelegramBot {
       method: "get",
       params: input,
     }
-    const res = await this.fetch(bot, `getUpdates`, options) as TelegramUpdateResponse;
-    return res.result || [];
+    const res = await this.fetch(bot, `getUpdates`, options);
+    return (res.result || []) as Update[];
+  }
+
+  async getFile(bot: ITelegramBot, file_id: string) {
+    const options: HttpFetchOptions = {
+      method: "get",
+      params: { file_id },
+    };
+    const res = await this.fetch(bot, `getFile`, options);
+    return res.result as TelegramFile;
+  }
+
+  getFileUrl(bot: ITelegramBot, file_path: string): string {
+    return `https://api.telegram.org/file/bot${bot.token}/${file_path}`;
   }
 
   async getAllUpdates(bot: ITelegramBot, timeout?: number, allowed_updates?: string[]): Promise<Update[]> {
     const allUpdates: Update[] = [];
     const limit = 100;
+    const pollTimeout = timeout ?? 30;
     let offset: number | undefined;
 
     while (true) {
       const updates = await this.getUpdates(bot, {
         offset: offset,
-        timeout: timeout,
+        timeout: pollTimeout,
         limit,
         allowed_updates: allowed_updates,
       });
 
-      allUpdates.push(...updates);
-
-      if (updates.length < limit) {
+      if (updates.length === 0) {
         break;
       }
 
-      const maxUpdateId = updates[updates.length - 1]!.update_id;
-      offset = maxUpdateId + 1;
+      allUpdates.push(...updates);
+      offset = updates[updates.length - 1]!.update_id + 1;
     }
 
     return allUpdates;
@@ -249,7 +261,7 @@ export class TelegramBot {
     Utils.sleep(retry_after);
   }
 
-  private async fetch(bot: ITelegramBot, endpoint: string, options: HttpFetchOptions, retry = this.max_retry): Promise<TelegramResponse | TelegramUpdateResponse> {
+  private async fetch(bot: ITelegramBot, endpoint: string, options: HttpFetchOptions, retry = this.max_retry): Promise<TelegramResponse> {
     try {
       const res = await this.httpClient.fetchWithRetry({
         url: `${this.getApi(bot.token)}/${endpoint}`,

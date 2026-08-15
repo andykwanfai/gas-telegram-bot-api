@@ -201,6 +201,15 @@ interface TelegramBotChatLocation {
   address: string;
 }
 
+export interface TelegramBotAudioFile {
+  file_id: string;
+  file_unique_id: string;
+  duration: number;
+  mime_type?: string;
+  file_name?: string;
+  file_size?: number;
+}
+
 export interface TelegramBotMessage {
   message_id: number;
   message_thread_id?: number;
@@ -209,12 +218,15 @@ export interface TelegramBotMessage {
   date: number;
   chat: TelegramBotChat;
   text?: string;
+  audio?: TelegramBotAudioFile;
+  voice?: TelegramBotAudioFile;
+  caption?: string;
 }
 
 export interface TelegramResponse {
   ok: boolean;
   description?: string;
-  result?: TelegramResponseResult | TelegramResponseResult[];
+  result?: TelegramResponseResult | TelegramResponseResult[] | Update[] | TelegramFile;
   error_code?: number;
   parameters?: { migrate_to_chat_id?: number, retry_after?: number };
 }
@@ -242,6 +254,7 @@ export interface TelegramBotInlineQuery {
 export interface Update {
   update_id: number;
   message?: TelegramBotMessage;
+  channel_post?: TelegramBotMessage;
   callback_query?: TelegramBotCallbackQuery;
   inline_query?: TelegramBotInlineQuery;
 }
@@ -253,7 +266,9 @@ export interface TelegramGetUpdatesInput {
   allowed_updates?: string[];
 }
 
-export interface TelegramUpdateResponse {
-  ok: boolean;
-  result: Update[];
+export interface TelegramFile {
+  file_id: string;
+  file_unique_id: string;
+  file_size?: number;
+  file_path?: string;
 }
